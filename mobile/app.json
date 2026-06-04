@@ -1,0 +1,20 @@
+{
+  "expo": {
+    "name": "Fitverse",
+    "slug": "fitverse",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.fitverse.app"
+    }
+  }
+}
