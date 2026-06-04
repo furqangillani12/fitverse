@@ -6,10 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
 } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '../services/api';
+import { GradientButton } from '../components/ui';
+import { colors, gradients, radius } from '../theme';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -25,8 +28,7 @@ export default function LoginScreen({ navigation }) {
     try {
       const { data } = await authService.login(email, password);
       await AsyncStorage.setItem('token', data.token);
-      Alert.alert('Success', data.message);
-      // navigation.replace('Dashboard');  // once Dashboard screen exists
+      navigation.replace('Main');
     } catch (err) {
       const msg = err.response?.data?.message || 'Login failed';
       Alert.alert('Error', msg);
@@ -36,55 +38,118 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Fitverse</Text>
-      <Text style={styles.subtitle}>Welcome back</Text>
+    <LinearGradient
+      colors={gradients.brand}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.bg}
+    >
+      <View style={styles.card}>
+        <LinearGradient colors={gradients.button} style={styles.badge}>
+          <MaterialCommunityIcons name="dumbbell" size={26} color="#fff" />
+        </LinearGradient>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Email"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+        <Text style={styles.title}>Welcome Back!</Text>
+        <Text style={styles.subtitle}>Sign in to continue your fitness journey</Text>
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.buttonText}>Log In</Text>
-        )}
-      </TouchableOpacity>
-    </View>
+        <Text style={styles.label}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="you@example.com"
+          placeholderTextColor={colors.textFaint}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          value={email}
+          onChangeText={setEmail}
+        />
+
+        <Text style={styles.label}>Password</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="••••••••"
+          placeholderTextColor={colors.textFaint}
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
+
+        <TouchableOpacity style={styles.forgot}>
+          <Text style={styles.forgotText}>Forgot password?</Text>
+        </TouchableOpacity>
+
+        <GradientButton title="Sign In" onPress={handleLogin} loading={loading} />
+
+        <View style={styles.signupRow}>
+          <Text style={styles.muted}>Don't have an account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <Text style={styles.link}>Sign Up</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.dividerRow}>
+          <View style={styles.divider} />
+          <Text style={styles.orText}>Or continue with</Text>
+          <View style={styles.divider} />
+        </View>
+
+        <View style={styles.socialRow}>
+          <TouchableOpacity style={styles.social}>
+            <Text style={styles.socialText}>Google</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.social}>
+            <Text style={styles.socialText}>Apple</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#fff' },
-  title: { fontSize: 36, fontWeight: 'bold', textAlign: 'center', color: '#2e7d32' },
-  subtitle: { fontSize: 16, textAlign: 'center', color: '#666', marginBottom: 32 },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 16,
-    fontSize: 16,
+  bg: { flex: 1, justifyContent: 'center', padding: 22 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: radius.xl,
+    padding: 26,
   },
-  button: {
-    backgroundColor: '#2e7d32',
-    padding: 16,
-    borderRadius: 8,
+  badge: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: 'center',
-    marginTop: 8,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginBottom: 18,
   },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  title: { fontSize: 24, fontWeight: '700', textAlign: 'center', color: colors.text },
+  subtitle: { fontSize: 14, textAlign: 'center', color: colors.textMuted, marginBottom: 26 },
+  label: { fontSize: 13, fontWeight: '600', color: colors.text, marginBottom: 6 },
+  input: {
+    backgroundColor: colors.bgAlt,
+    borderRadius: radius.sm,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    fontSize: 15,
+    marginBottom: 16,
+    color: colors.text,
+  },
+  forgot: { alignSelf: 'flex-end', marginTop: -4, marginBottom: 18 },
+  forgotText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
+  signupRow: { flexDirection: 'row', justifyContent: 'center', marginTop: 18 },
+  muted: { color: colors.textMuted, fontSize: 14 },
+  link: { color: colors.primary, fontSize: 14, fontWeight: '700' },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 22 },
+  divider: { flex: 1, height: 1, backgroundColor: colors.border },
+  orText: { color: colors.textMuted, fontSize: 13, marginHorizontal: 12 },
+  socialRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  social: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.sm,
+    paddingVertical: 13,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  socialText: { color: colors.text, fontSize: 15, fontWeight: '600' },
 });
